@@ -1,43 +1,42 @@
 /****************************************************************
- * OMNode is a Node interface to Openmodelica.
+ * OMNodeJS is a Node interface to Openmodelica.
  ****************************************************************/
-import { ChildProcess } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import fs from 'fs';
 import uuid from 'node-uuid';
 import os from 'os';
 import path from 'path';
 import process from 'process';
 
-process.on("beforeExit", (code) => {
-  console.log("Process beforeExit event with code: ", code);
-});
-
 /**
+ * @description
+ * @author 胡旭鹏
+ * @date 14/01/2022
  * @class OMCSessionHelper
- * @description Get the path to the OMC executable, if not installed this will be None
  */
 class OMCSessionHelper {
   omc_env_home: string;
   omhome: string;
+  path_to_omc: string | undefined;
   constructor() {
     this.omc_env_home = process.env.OPENMODELICAHOME!;
     if (this.omc_env_home) {
       this.omhome = this.omc_env_home;
     } else {
-      path_to_omc = fs.statSync();
+      this.path_to_omc = this._get_omc_path();
       throw new Error(
         `could not find environment variable ${this.omc_env_home}`
       );
     }
   }
-  _get_omc_path(this: any): string {
+  _get_omc_path(): string {
     try {
       return path.join(this.omc_env_home, `bin`, `omc`);
     } catch (BaseException) {
       throw new Error(
         `The OpenModelica compiler is missing in the System path ${
           this.omc_env_home
-        },please install it ${path.join(this.omc_env, `bin`, `omc`)}`
+        },please install it ${path.join(this.omhome, `bin`, `omc`)}`
       );
     }
   }
@@ -46,7 +45,7 @@ class OMCsessionBase extends OMCSessionHelper {
   readonly: true | false | undefined;
   omc_cache: Array<object> | undefined;
   _omc_process: ChildProcess | null;
-  _omc_command: Array<string> | null | undefined;
+  _omc_command: Array<string> | undefined;
   _omc: null | undefined;
   _dockerCid: null | undefined;
   _serverIPAddress: string | undefined;
@@ -58,12 +57,13 @@ class OMCsessionBase extends OMCSessionHelper {
   extraFlags: string[] | undefined;
   omcCommand: Array<string>;
   omhome_bin: string | undefined;
+  my_env: object;
   constructor(readonly = false) {
     super();
     this.readonly = readonly;
     this.omc_cache = [];
     this._omc_process = null;
-    this._omc_command = null;
+    this._omc_command = undefined;
     this._omc = null;
     this._dockerCid = null;
     this._serverIPAddress = "127.0.0.1";
@@ -74,6 +74,7 @@ class OMCsessionBase extends OMCSessionHelper {
     this.extraFlags = undefined;
     this.omcCommand = [];
     this.omhome_bin = undefined;
+    this.my_env = {};
     try {
       this._currentUser = os.userInfo().username;
       if (!this._currentUser) {
@@ -115,7 +116,15 @@ class OMCsessionBase extends OMCSessionHelper {
   }
   _start_omc_process(timeout: number) {
     if (os.platform() === "win32") {
-      this.omhome_bin = path.join(this.omhome, "bin");
+      this.omhome_bin = path.join(this.omhome, "bin").replace("\\", "/");
+      this.my_env = process.env;
+      this.my_env["PATH"] = this.omhome_bin + path.sep + this.my_env["PATH"];
+      this._omc_process = spawn(String(this.omcCommand), this._omc_command!, {
+        env: my_env,
+        stdio: [0, this._omc_log_file, this._omc_log_file],
+        shell: true,
+      });
+    } else {
     }
   }
 
@@ -146,10 +155,7 @@ class OMCsessionBase extends OMCSessionHelper {
     if (this._interactivePort) {
       this.extraFlags.push(`--interactivePort=${this._interactivePort}`);
     }
-    omc_path_and_args_list = this.omcCommand.concat(
-      omc_path_and_args_list,
-      this.extraFlags
-    );
+    omc_path_and_args_list = omc_path_and_args_list.concat(this.extraFlags);
     if (os.platform() === "win32") {
       this._omc_command = omc_path_and_args_list;
     } else {
@@ -271,8 +277,8 @@ class OMCSessionZMQ extends OMCsessionBase {
       "--locale=C",
       `-z=${this._random_string}`,
     ]);
-    self._start_omc_process(timeout);
-    self._connect_to_omc(timeout);
+    this._start_omc_process(timeout);
+    this._connect_to_omc(timeout);
   }
 }
 
