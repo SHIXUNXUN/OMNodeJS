@@ -1,0 +1,25 @@
+{
+  "name": "omnode",
+  "version": "1.0.0",
+  "description": "omnode is a node interface to openmodelica",
+  "contributors": [
+    "胡旭鹏"
+  ],
+  "main": "src/index.ts",
+  "author": "胡旭鹏 <ftchxp@foxmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "openmodelica",
+    "modelica",
+    "interface"
+  ],
+  "devDependencies": {
+    "@types/node": "^17.0.8",
+    "@types/node-uuid": "^0.0.29",
+    "@types/zeromq": "^5.2.1"
+  },
+  "dependencies": {
+    "node-uuid": "^1.4.8",
+    "zeromq": "5"
+  }
+}
