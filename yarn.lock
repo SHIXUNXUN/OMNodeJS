@@ -14,6 +14,13 @@
   resolved "https://repo.huaweicloud.com/repository/npm/@types/node/-/node-17.0.8.tgz#50d680c8a8a78fe30abe6906453b21ad8ab0ad7b"
   integrity sha512-YofkM6fGv4gDJq78g4j0mMuGMkZVxZDgtU0JRdx6FgiJDG+0fY0GKVolOV8WqVmEhLCXkQRjwDdKyPxJp/uucg==
 
+"@types/zeromq@^5.2.1":
+  version "5.2.1"
+  resolved "https://repo.huaweicloud.com/repository/npm/@types/zeromq/-/zeromq-5.2.1.tgz#f4316166e90fbe01e25ec6a6efa84e9bc8f91314"
+  integrity sha512-B6fUT5ZanWEyKSmLLEA0K3zNPvVedrjL6LNZWAt1eOpNg0J2lw14ismPJeOrgPf3SzRuNhPReQWibHbnMrtRow==
+  dependencies:
+    "@types/node" "*"
+
 nan@2.14.2:
   version "2.14.2"
   resolved "https://repo.huaweicloud.com/repository/npm/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"

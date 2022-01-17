@@ -2,11 +2,13 @@
  * OMNodeJS is a Node interface to Openmodelica.
  ****************************************************************/
 import { ChildProcess, spawn } from 'child_process';
-import fs from 'fs';
+import fs, { existsSync } from 'fs';
 import uuid from 'node-uuid';
 import os from 'os';
 import path from 'path';
 import process from 'process';
+import readline from 'readline';
+import zmq from 'zeromq';
 
 /**
  * @description
@@ -46,7 +48,7 @@ class OMCsessionBase extends OMCSessionHelper {
   omc_cache: Array<object> | undefined;
   _omc_process: ChildProcess | null;
   _omc_command: Array<string> | undefined;
-  _omc: null | undefined;
+  _omc: zmq.Socket | undefined;
   _dockerCid: null | undefined;
   _serverIPAddress: string | undefined;
   _interactivePort: null | undefined;
@@ -58,13 +60,13 @@ class OMCsessionBase extends OMCSessionHelper {
   omcCommand: Array<string>;
   omhome_bin: string | undefined;
   my_env: object;
-  constructor(readonly = false) {
+  constructor(readonly = true) {
     super();
     this.readonly = readonly;
     this.omc_cache = [];
     this._omc_process = null;
     this._omc_command = undefined;
-    this._omc = null;
+    this._omc = undefined;
     this._dockerCid = null;
     this._serverIPAddress = "127.0.0.1";
     this._interactivePort = null;
@@ -114,20 +116,32 @@ class OMCsessionBase extends OMCSessionHelper {
       );
     }
   }
-  _start_omc_process(timeout: number) {
+  _start_omc_process(timeout: number): ChildProcess {
     if (os.platform() === "win32") {
       this.omhome_bin = path.join(this.omhome, "bin").replace("\\", "/");
-      this.my_env = process.env;
-      this.my_env["PATH"] = this.omhome_bin + path.sep + this.my_env["PATH"];
+      const my_env = process.env;
+      my_env["PATH"] = this.omhome_bin + path.sep + my_env["PATH"];
       this._omc_process = spawn(String(this.omcCommand), this._omc_command!, {
         env: my_env,
         stdio: [0, this._omc_log_file, this._omc_log_file],
         shell: true,
       });
     } else {
+      this._omc_process = spawn(String(this.omcCommand), this._omc_command!, {
+        stdio: [0, this._omc_log_file, this._omc_log_file],
+        shell: true,
+      });
     }
+    return this._omc_process;
   }
 
+  /**
+   * @description 方法废弃
+   * @author 胡旭鹏
+   * @date 14/01/2022
+   * @memberof OMCsessionBase
+   */
+  _connect_to_omc(timeout: number) {}
   /**
    * @description 设置omc命令，里面的docker部分有问题，目前不可用
    * @author 胡旭鹏
@@ -251,8 +265,8 @@ class OMCSessionZMQ extends OMCsessionBase {
     port = null
   ) {
     super();
-    OMCSessionHelper.constructor();
-    OMCsessionBase.constructor(readonly);
+    // OMCSessionHelper.constructor();
+    // OMCsessionBase.constructor(readonly);
     if (os.platform() != "win32" || docker || dockerContainer) {
       this._port_file =
         "openmodelica." + this._currentUser + ".port." + this._random_string;
@@ -280,6 +294,62 @@ class OMCSessionZMQ extends OMCsessionBase {
     this._start_omc_process(timeout);
     this._connect_to_omc(timeout);
   }
+
+  /** OMCSessionZMQ的_connect_to_omc方法，需要与OMCsessionBase的加以区分
+   * @description
+   * @author 胡旭鹏
+   * @date 14/01/2022
+   * @memberof OMCSessionZMQ
+   */
+  _connect_to_omc(timeout: number) {
+    const _omc_zeromq_uri = "file:///" + this._port_file;
+    let attempts = 0;
+    let _port: string = "";
+    const _port_file_createReadStream = fs.createReadStream(this._port_file);
+    while (true) {
+      if (this._dockerCid) {
+        // docker部分，待后续开发
+      } else {
+        const rl = readline.createInterface({
+          input: _port_file_createReadStream,
+        });
+        if (existsSync(this._port_file)) {
+          rl.on("line", (line: string) => {
+            _port = line;
+          });
+        } else {
+          //python的代码这里感觉有bug
+          rl.close();
+          fs.unlinkSync(this._port_file);
+          break;
+        }
+      }
+      attempts += 1;
+      if (attempts == 80) {
+        const temname = this._omc_log_file?.path;
+        this._omc_log_file?.close();
+        console.error(
+          `OMC Server did not start. Please start it! Log-file says:\n${fs.readFileSync(
+            temname as string
+          )}`
+        );
+        throw new Error(
+          `OMC Server did not start (timeout=${timeout}). Could not open file ${this._port_file}`
+        );
+      }
+      sleep(timeout / 80);
+    }
+    _port = _port.replace("0.0.0.0", this._serverIPAddress!);
+    console.info(
+      `OMC Server is up and running at ${_omc_zeromq_uri} pid=${this._omc_process?.pid}`
+    );
+    this._omc = zmq.socket("pull", { linger: 0 }); //linger:Dismisses pending messages if closed
+    this._omc.connect(_port);
+    console.info("OMC Client is up and running");
+    this._omc.on("message", (msg: string) => {
+      console.log(`OMC_Client read: ${msg}`);
+    });
+  }
 }
 
 function execute(expression: string): object {
@@ -290,3 +360,5 @@ function sleep(ms: number) {
     setTimeout(resolve, ms);
   });
 }
+
+export { OMCSessionZMQ };
