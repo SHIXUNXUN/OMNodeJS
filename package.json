@@ -1,11 +1,19 @@
 {
-  "name": "omnode",
+  "name": "omnodejs",
   "version": "1.0.0",
-  "description": "omnode is a node interface to openmodelica",
+  "description": "OMNodeJS is a node interface to openmodelica",
   "contributors": [
     "胡旭鹏"
   ],
-  "main": "src/index.ts",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitee.com/HeavyRabbit19c/OMNodeJS.git"
+  },
   "author": "胡旭鹏 <ftchxp@foxmail.com>",
   "license": "MIT",
   "keywords": [
@@ -16,14 +24,16 @@
   "devDependencies": {
     "@types/node": "^17.0.8",
     "@types/node-uuid": "^0.0.29",
-    "@types/pegjs": "^0.10.3",
-    "@types/zeromq": "^6.0.0-beta.6"
+    "@types/zeromq": "^5.2.1",
+    "typescript": "^4.5.4"
   },
   "dependencies": {
     "node-uuid": "^1.4.8",
     "peggy": "^1.2.0",
-    "pegjs": "^0.10.0",
     "tslib": "^2.3.1",
     "zeromq": "^6.0.0-beta.6"
-  }
+  },
+  "files": [
+    "lib/**/*"
+  ]
 }

@@ -401,4 +401,5 @@ function sleep(ms: number) {
 function execute(expression: string): {} {
   throw new Error("Function not implemented.");
 }
-export { OMCSessionZMQ };
+
+export default { OMCSessionZMQ };
