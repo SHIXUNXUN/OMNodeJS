@@ -10,6 +10,8 @@ import process from 'process';
 import readline from 'readline';
 import zmq from 'zeromq';
 
+import { OMTypedParser } from './OMTypedParser';
+
 /**
  * @description
  * @author 胡旭鹏
@@ -48,7 +50,7 @@ class OMCsessionBase extends OMCSessionHelper {
   omc_cache: Array<object> | undefined;
   _omc_process: ChildProcess | null;
   _omc_command: Array<string> | undefined;
-  _omc: zmq.Socket | undefined;
+  _omc: zmq.Request | undefined;
   _dockerCid: null | undefined;
   _serverIPAddress: string | undefined;
   _interactivePort: null | undefined;
@@ -57,6 +59,13 @@ class OMCsessionBase extends OMCSessionHelper {
   _omc_log_file: fs.WriteStream | undefined;
   _currentUser: string | undefined;
   extraFlags: string[] | undefined;
+  /**
+   * @description omc.exe进程变量
+   * @author 胡旭鹏
+   * @date 17/01/2022
+   * @type {Array<string>}
+   * @memberof OMCsessionBase
+   */
   omcCommand: Array<string>;
   omhome_bin: string | undefined;
   my_env: object;
@@ -143,7 +152,7 @@ class OMCsessionBase extends OMCSessionHelper {
    */
   _connect_to_omc(timeout: number) {}
   /**
-   * @description 设置omc命令，里面的docker部分有问题，目前不可用
+   * @description 设置omc命令，里面的docker部分有问题，目前不可用，核心为改变_omc_command
    * @author 胡旭鹏
    * @date 14/01/2022
    * @param {Array<object>} omc_path_and_args_list
@@ -175,7 +184,6 @@ class OMCsessionBase extends OMCSessionHelper {
     } else {
       // 非win32平台后续加入
     }
-    return this._omc_command;
   }
   /**
    * @description 向omc发送表达式
@@ -343,22 +351,54 @@ class OMCSessionZMQ extends OMCsessionBase {
     console.info(
       `OMC Server is up and running at ${_omc_zeromq_uri} pid=${this._omc_process?.pid}`
     );
-    this._omc = zmq.socket("pull", { linger: 0 }); //linger:Dismisses pending messages if closed
+    this._omc = new zmq.Request({ linger: 0 }); //linger:Dismisses pending messages if closed
     this._omc.connect(_port);
     console.info("OMC Client is up and running");
-    this._omc.on("message", (msg: string) => {
-      console.log(`OMC_Client read: ${msg}`);
-    });
+    // this._omc.on("message", (msg: string) => {
+    //   console.log(`OMC_Client read: ${msg}`);
+    // });
+  }
+
+  async sendExpression(command: string, parsed: boolean = true) {
+    const p = this._omc_process?.exitCode; //如果还在运行就是null
+    if (p == null) {
+      let attempts = 0;
+      while (true) {
+        try {
+          //发送command字符串
+          await this._omc?.send(String(command));
+          let result = await this._omc?.receive();
+          if (parsed) {
+            let result_str = OMTypedParser.parseString(String(result));
+            return result_str;
+          } else {
+            return result?.toString();
+          }
+        } catch (err) {}
+        attempts++;
+        if (attempts == 50.0) {
+          let name = this._omc_log_file?.path;
+          this._omc_log_file?.close();
+          throw new Error(
+            `No connection with OMC (timeout=${this._timeout}). Log-file says: \n${name}`
+          );
+        }
+        sleep(this._timeout / 50.0);
+      }
+    } else {
+      throw new Error(
+        `Process Exited, No connection with OMC. Create a new instance of OMCSession`
+      );
+    }
   }
 }
 
-function execute(expression: string): object {
-  throw new Error("Function not implemented.");
-}
 function sleep(ms: number) {
   return new Promise((resolve, reject) => {
     setTimeout(resolve, ms);
   });
 }
-
+function execute(expression: string): {} {
+  throw new Error("Function not implemented.");
+}
 export { OMCSessionZMQ };

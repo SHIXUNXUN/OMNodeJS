@@ -14,19 +14,19 @@
   resolved "https://repo.huaweicloud.com/repository/npm/@types/node/-/node-17.0.8.tgz#50d680c8a8a78fe30abe6906453b21ad8ab0ad7b"
   integrity sha512-YofkM6fGv4gDJq78g4j0mMuGMkZVxZDgtU0JRdx6FgiJDG+0fY0GKVolOV8WqVmEhLCXkQRjwDdKyPxJp/uucg==
 
-"@types/zeromq@^5.2.1":
+"@types/pegjs@^0.10.3":
+  version "0.10.3"
+  resolved "https://repo.huaweicloud.com/repository/npm/@types/pegjs/-/pegjs-0.10.3.tgz#9e254036c6bf2254cd98caec447a1d79b6607bff"
+  integrity sha512-C/ZkUNe7HONOaDHXfNTZOUzrOvOgrWdrJj1JZ3QTEPi5gOIygcjCpXyxpdJTKVvWFzbobajRbMbQY8d0WrZ6fg==
+
+"@types/zeromq@^6.0.0-beta.6":
   version "5.2.1"
   resolved "https://repo.huaweicloud.com/repository/npm/@types/zeromq/-/zeromq-5.2.1.tgz#f4316166e90fbe01e25ec6a6efa84e9bc8f91314"
   integrity sha512-B6fUT5ZanWEyKSmLLEA0K3zNPvVedrjL6LNZWAt1eOpNg0J2lw14ismPJeOrgPf3SzRuNhPReQWibHbnMrtRow==
   dependencies:
     "@types/node" "*"
 
-nan@2.14.2:
-  version "2.14.2"
-  resolved "https://repo.huaweicloud.com/repository/npm/nan/-/nan-2.14.2.tgz#f5376400695168f4cc694ac9393d0c9585eeea19"
-  integrity sha512-M2ufzIiINKCuDfBSAUr1vWQ+vuVcA9kqx8JJUsbQi6yf1uGRyb7HfpdfUr5qLXf3B/t8dPvcjhKMmlfnP47EzQ==
-
-node-gyp-build@^4.2.3:
+node-gyp-build@^4.1.0:
   version "4.3.0"
   resolved "https://repo.huaweicloud.com/repository/npm/node-gyp-build/-/node-gyp-build-4.3.0.tgz#9f256b03e5826150be39c764bf51e993946d71a3"
   integrity sha512-iWjXZvmboq0ja1pUGULQBexmxq8CV4xBhX7VDOTbL7ZR4FOowwY/VOtRxBN/yKxmdGoIp4j5ysNT4u3S2pDQ3Q==
@@ -36,10 +36,19 @@ node-uuid@^1.4.8:
   resolved "https://repo.huaweicloud.com/repository/npm/node-uuid/-/node-uuid-1.4.8.tgz#b040eb0923968afabf8d32fb1f17f1167fdab907"
   integrity sha1-sEDrCSOWivq/jTL7HxfxFn/auQc=
 
-zeromq@5:
-  version "5.2.8"
-  resolved "https://repo.huaweicloud.com/repository/npm/zeromq/-/zeromq-5.2.8.tgz#94b0b85e4152e98b8bb163f1db4a34280d44d9d0"
-  integrity sha512-bXzsk7KOmgLSv1tC0Ms1VXBy90+Rz27ZYf27cLuldRYbpqYpuWJfxxHFhO710t22zgWBnmdUP0m3SKFpLI0u5g==
+pegjs@^0.10.0:
+  version "0.10.0"
+  resolved "https://repo.huaweicloud.com/repository/npm/pegjs/-/pegjs-0.10.0.tgz#cf8bafae6eddff4b5a7efb185269eaaf4610ddbd"
+  integrity sha1-z4uvrm7d/0tafvsYUmnqr0YQ3b0=
+
+tslib@^2.3.1:
+  version "2.3.1"
+  resolved "https://repo.huaweicloud.com/repository/npm/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
+  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
+
+zeromq@^6.0.0-beta.6:
+  version "6.0.0-beta.6"
+  resolved "https://repo.huaweicloud.com/repository/npm/zeromq/-/zeromq-6.0.0-beta.6.tgz#2b8934cafce735ea9007fd3074ec8aca9bf11204"
+  integrity sha512-wLf6M7pBHijl+BRltUL2VoDpgbQcOZetiX8UzycHL8CcYFxYnRrpoG5fi3UX3+Umavz1lk4/dGaQez8qiDgr/Q==
   dependencies:
-    nan "2.14.2"
-    node-gyp-build "^4.2.3"
+    node-gyp-build "^4.1.0"
