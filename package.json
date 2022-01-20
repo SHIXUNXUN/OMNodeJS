@@ -1,5 +1,8 @@
 {
   "dependencies": {
-    "corba.js": "^0.0.12"
+    "basics": "^0.0.42",
+    "corba.js": "^0.0.12",
+    "generated": "^2.5.0",
+    "stub": "^0.3.2"
   }
 }
