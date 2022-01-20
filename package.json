@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "corba.js": "^0.0.12"
+  }
+}
