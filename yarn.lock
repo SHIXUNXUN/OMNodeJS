@@ -2,6 +2,7 @@
 # yarn lockfile v1
 
 
+<<<<<<< HEAD
 "@babel/code-frame@^7.16.7":
   "integrity" "sha512-iAXqUn8IIeBTNd72xsFlgaXHkMBMt6y4HJp1tIaK465CWLT/fG1aqB7ykr95gHHmlBdGbFeWWfyB4NJJ0nmeIg=="
   "resolved" "https://registry.npmjs.org/@babel/code-frame/-/code-frame-7.16.7.tgz"
@@ -4145,3 +4146,65 @@
   "integrity" "sha512-V50KMwwzqJV0NpZIZFwfOD5/lyny3WlSzRiXgA0G7VUnRlqttta1L6UQIHzd6EuBY/cHGfwTIck7w1yH6Q5zUw=="
   "resolved" "https://registry.npmjs.org/zwitch/-/zwitch-1.0.5.tgz"
   "version" "1.0.5"
+=======
+"@types/node-uuid@^0.0.29":
+  version "0.0.29"
+  resolved "https://repo.huaweicloud.com/repository/npm/@types/node-uuid/-/node-uuid-0.0.29.tgz#c5f56118c683874f13d574a2c26a54d377a70625"
+  integrity sha512-aZX0KOYiYcIeKtZnpuqrU6V8gT25HRGzugYNHBPQb4Lp55QqlsMRKsKM+GTKey2+2zp6dsm3fVDnQVyDOKwGdA==
+  dependencies:
+    "@types/node" "*"
+
+"@types/node@*", "@types/node@^17.0.8":
+  version "17.0.8"
+  resolved "https://repo.huaweicloud.com/repository/npm/@types/node/-/node-17.0.8.tgz#50d680c8a8a78fe30abe6906453b21ad8ab0ad7b"
+  integrity sha512-YofkM6fGv4gDJq78g4j0mMuGMkZVxZDgtU0JRdx6FgiJDG+0fY0GKVolOV8WqVmEhLCXkQRjwDdKyPxJp/uucg==
+
+"@types/pegjs@^0.10.3":
+  version "0.10.3"
+  resolved "https://repo.huaweicloud.com/repository/npm/@types/pegjs/-/pegjs-0.10.3.tgz#9e254036c6bf2254cd98caec447a1d79b6607bff"
+  integrity sha512-C/ZkUNe7HONOaDHXfNTZOUzrOvOgrWdrJj1JZ3QTEPi5gOIygcjCpXyxpdJTKVvWFzbobajRbMbQY8d0WrZ6fg==
+
+"@types/zeromq@^6.0.0-beta.6":
+  version "5.2.1"
+  resolved "https://repo.huaweicloud.com/repository/npm/@types/zeromq/-/zeromq-5.2.1.tgz#f4316166e90fbe01e25ec6a6efa84e9bc8f91314"
+  integrity sha512-B6fUT5ZanWEyKSmLLEA0K3zNPvVedrjL6LNZWAt1eOpNg0J2lw14ismPJeOrgPf3SzRuNhPReQWibHbnMrtRow==
+  dependencies:
+    "@types/node" "*"
+
+node-gyp-build@^4.1.0:
+  version "4.3.0"
+  resolved "https://repo.huaweicloud.com/repository/npm/node-gyp-build/-/node-gyp-build-4.3.0.tgz#9f256b03e5826150be39c764bf51e993946d71a3"
+  integrity sha512-iWjXZvmboq0ja1pUGULQBexmxq8CV4xBhX7VDOTbL7ZR4FOowwY/VOtRxBN/yKxmdGoIp4j5ysNT4u3S2pDQ3Q==
+
+node-uuid@^1.4.8:
+  version "1.4.8"
+  resolved "https://repo.huaweicloud.com/repository/npm/node-uuid/-/node-uuid-1.4.8.tgz#b040eb0923968afabf8d32fb1f17f1167fdab907"
+  integrity sha1-sEDrCSOWivq/jTL7HxfxFn/auQc=
+
+peggy@^1.2.0:
+  version "1.2.0"
+  resolved "https://repo.huaweicloud.com/repository/npm/peggy/-/peggy-1.2.0.tgz#657ba45900cbef1dc9f52356704bdbb193c2021c"
+  integrity sha512-PQ+NKpAobImfMprYQtc4Egmyi29bidRGEX0kKjCU5uuW09s0Cthwqhfy7mLkwcB4VcgacE5L/ZjruD/kOPCUUw==
+
+pegjs@^0.10.0:
+  version "0.10.0"
+  resolved "https://repo.huaweicloud.com/repository/npm/pegjs/-/pegjs-0.10.0.tgz#cf8bafae6eddff4b5a7efb185269eaaf4610ddbd"
+  integrity sha1-z4uvrm7d/0tafvsYUmnqr0YQ3b0=
+
+tslib@^2.3.1:
+  version "2.3.1"
+  resolved "https://repo.huaweicloud.com/repository/npm/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
+  integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
+
+typescript@^4.5.4:
+  version "4.5.4"
+  resolved "https://repo.huaweicloud.com/repository/npm/typescript/-/typescript-4.5.4.tgz#a17d3a0263bf5c8723b9c52f43c5084edf13c2e8"
+  integrity sha512-VgYs2A2QIRuGphtzFV7aQJduJ2gyfTljngLzjpfW9FoYZF6xuw1W0vW9ghCKLfcWrCFxK81CSGRAvS1pn4fIUg==
+
+zeromq@^6.0.0-beta.6:
+  version "6.0.0-beta.6"
+  resolved "https://repo.huaweicloud.com/repository/npm/zeromq/-/zeromq-6.0.0-beta.6.tgz#2b8934cafce735ea9007fd3074ec8aca9bf11204"
+  integrity sha512-wLf6M7pBHijl+BRltUL2VoDpgbQcOZetiX8UzycHL8CcYFxYnRrpoG5fi3UX3+Umavz1lk4/dGaQez8qiDgr/Q==
+  dependencies:
+    node-gyp-build "^4.1.0"
+>>>>>>> bb81319726515268424cc8374348b6417e101908

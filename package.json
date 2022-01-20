@@ -1,8 +1,48 @@
 {
+<<<<<<< HEAD
   "dependencies": {
     "basics": "^0.0.42",
     "corba.js": "^0.0.12",
     "generated": "^2.5.0",
     "stub": "^0.3.2"
   }
+=======
+  "name": "omnodejs",
+  "version": "1.0.0",
+  "description": "OMNodeJS is a node interface to openmodelica",
+  "contributors": [
+    "胡旭鹏"
+  ],
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitee.com/HeavyRabbit19c/OMNodeJS.git"
+  },
+  "author": "胡旭鹏 <ftchxp@foxmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "openmodelica",
+    "modelica",
+    "interface"
+  ],
+  "devDependencies": {
+    "@types/node": "^17.0.8",
+    "@types/node-uuid": "^0.0.29",
+    "@types/zeromq": "^5.2.1",
+    "typescript": "^4.5.4"
+  },
+  "dependencies": {
+    "node-uuid": "^1.4.8",
+    "peggy": "^1.2.0",
+    "tslib": "^2.3.1",
+    "zeromq": "^6.0.0-beta.6"
+  },
+  "files": [
+    "lib/**/*"
+  ]
+>>>>>>> bb81319726515268424cc8374348b6417e101908
 }
