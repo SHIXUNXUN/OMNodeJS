@@ -262,8 +262,6 @@ class OMCSessionZMQ extends OMCsessionBase {
   _dockerNetwork: string | null;
   _timeout: number;
   constructor(
-    OMCsessionBase: { constructor: (arg0: boolean) => void },
-    readonly = false,
     timeout = 10.0,
     docker = null,
     dockerContainer = null,

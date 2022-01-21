@@ -19,7 +19,8 @@
   "keywords": [
     "openmodelica",
     "modelica",
-    "interface"
+    "interface",
+    "mbse"
   ],
   "devDependencies": {
     "@types/node": "^17.0.8",
