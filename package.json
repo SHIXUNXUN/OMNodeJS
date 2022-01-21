@@ -1,4 +1,12 @@
 {
+<<<<<<< HEAD
+  "dependencies": {
+    "basics": "^0.0.42",
+    "corba.js": "^0.0.12",
+    "generated": "^2.5.0",
+    "stub": "^0.3.2"
+  }
+=======
   "name": "omnodejs",
   "version": "1.0.0",
   "description": "OMNodeJS is a node interface to openmodelica",
@@ -37,4 +45,5 @@
   "files": [
     "lib/**/*"
   ]
+>>>>>>> bb81319726515268424cc8374348b6417e101908
 }
