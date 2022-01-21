@@ -2,6 +2,7 @@
  * OMNodeJS is a Node interface to Openmodelica.
  ****************************************************************/
 import { ChildProcess, spawn } from 'child_process';
+import { ORB } from 'corba.js';
 import fs, { existsSync } from 'fs';
 import uuid from 'node-uuid';
 import os from 'os';
@@ -9,7 +10,7 @@ import path from 'path';
 import process from 'process';
 import readline from 'readline';
 import zmq from 'zeromq';
-import  {ORB} from "corba.js";
+
 import { OMTypedParser } from './OMTypedParser';
 
 /**
@@ -242,7 +243,7 @@ class OMCsessionBase extends OMCSessionHelper {
  * @date 13/01/2022
  * @class OMCSession
  */
- class OMCSession extends OMCsessionBase {
+class OMCSession extends OMCsessionBase {
   _port_file: string;
   _docker: string | null;
   _dockerContainer: string | null;
@@ -251,13 +252,13 @@ class OMCsessionBase extends OMCSessionHelper {
   _dockerNetwork: string | null;
   _timeout: number;
   _port: any;
-  _orb: ORB | any;
+  _orb: ORB | undefined;
   _poa: any;
   _obj_reference: any;
   constructor(
     OMCsessionBase: { constructor: (arg0: boolean) => void },
     readonly = false,
-    serverFlag='--interactive=corba',
+    serverFlag = "--interactive=corba",
     timeout = 10.0,
     docker = null,
     dockerContainer = null,
@@ -265,7 +266,7 @@ class OMCsessionBase extends OMCSessionHelper {
     dockerOpenModelicaPath = "omc",
     dockerNetwork = null,
     port = null
-  ){
+  ) {
     super();
     this._create_omc_log_file("objid");
     if (os.platform() != "win32" || docker || dockerContainer) {
@@ -276,7 +277,10 @@ class OMCsessionBase extends OMCSessionHelper {
     }
     this._port_file = String(
       path
-        .join( docker || dockerContainer ? "/tmp" : this._temp_dir!, this._port_file)
+        .join(
+          docker || dockerContainer ? "/tmp" : this._temp_dir!,
+          this._port_file
+        )
         .replace("\\", "/")
     );
     this._docker = docker;
@@ -286,108 +290,96 @@ class OMCsessionBase extends OMCSessionHelper {
     this._dockerNetwork = dockerNetwork;
     this._timeout = timeout;
     this._create_omc_log_file("port");
-    this._set_omc_command([
-      serverFlag,
-      `+c=${this._random_string}`,
-    ]);
+    this._set_omc_command([serverFlag, `+c=${this._random_string}`]);
     this._start_omc_process(timeout);
     this._connect_to_omc(timeout);
   }
 
-  _connect_to_omc(timeout: number){
-    path.join(this.omhome,'lib','python');
-    try{
-    }
-    catch{
-      this._omc_process.kill();
-      throw new Error;
-    }
-    const _omc_corba_uri = "file:///" + this._port_file;
-    let attempts = 0;
-    let _ior: string = "";
-    let _port: string = "";
-    let contents: Buffer;
-    const _port_file_createReadStream = fs.createReadStream(this._port_file);
-    while (true){
-      if (this._dockerCid)
-      {
-        //docker部分
-      }
-      const f_p = readline.createInterface({
-          input: _port_file_createReadStream,
-        });
-      if (existsSync(this._port_file)) 
-      {
-        f_p.on("line", (line: string) => 
-        {
-          _ior = line;
-        });
-        break;
-      }
-      attempts +=1;
-      if (attempts == 80)
-      {
-        const name = this._omc_log_file?.path;
-        this._omc_log_file?.close;
-        contents = fs.readFileSync(name as string);
-        this._omc_process.kill;
-        throw new Error("OMC Server is down (timeout=${timeout}). Please start it! If the OMC version is old, try OMCSession(..., serverFlag='-d=interactiveCorba') or +d=interactiveCorba. Log-file says:\n${contents}");  
-      }
-    }
-    
-    while (true)
-    {
-      if (this._dockerCid)
-      {
-        // docker部分，待后续开发
-      }
-      else
-      {
-        const f_p = fs.createReadStream(this._port_file);
-        if (existsSync(this._port_file)) 
-        {
-          f_p.on("line", (line: string) => 
-          {
-           _port = line;
-          });
-          fs.unlinkSync(this._port_file);
-          break
-        }
-      }
-      attempts +=1;
-      if (attempts==80.0)
-      {
-        let name = this._omc_log_file?.path;
-        this._omc_log_file?.close;
-        console.error('OMC Server is down (timeout=${fs.readFileSync(name as string)}). Please start it! Log-file says:\n${fs.readFileSync(name as string)}');
-        throw new Error("OMC Server is down. Could not open file  ${timeout} ${self._port_file}");
-      }
-      sleep(timeout/80.0);
-    }
-    console.info("OMC Server is up and running at ${_omc_corba_uri} pid=${this._omc_process?.pid}");
+  // _connect_to_omc (timeout: number) {
+  //   path.join(this.omhome, 'lib', 'python');
+  //   try {
+  //   }
+  //   catch {
+  //     this._omc_process?.kill();
+  //     throw new Error;
+  //   }
+  //   const _omc_corba_uri = "file:///" + this._port_file;
+  //   let attempts = 0;
+  //   let _ior: string = "";
+  //   let _port: string = "";
+  //   let contents: Buffer;
+  //   const _port_file_createReadStream = fs.createReadStream(this._port_file);
+  //   while (true) {
+  //     if (this._dockerCid) {
+  //       //docker部分
+  //     }
+  //     const f_p = readline.createInterface({
+  //       input: _port_file_createReadStream,
+  //     });
+  //     if (existsSync(this._port_file)) {
+  //       f_p.on("line", (line: string) => {
+  //         _ior = line;
+  //       });
+  //       break;
+  //     }
+  //     attempts += 1;
+  //     if (attempts == 80) {
+  //       const name = this._omc_log_file?.path;
+  //       this._omc_log_file?.close;
+  //       contents = fs.readFileSync(name as string);
+  //       this._omc_process?.kill;
+  //       throw new Error("OMC Server is down (timeout=${timeout}). Please start it! If the OMC version is old, try OMCSession(..., serverFlag='-d=interactiveCorba') or +d=interactiveCorba. Log-file says:\n${contents}");
+  //     }
+  //   }
 
-    this._orb = new ORB();
-    this._orb.registerStubClass(stub.Server);
+  //   while (true) {
+  //     if (this._dockerCid) {
+  //       // docker部分，待后续开发
+  //     }
+  //     else {
+  //       const f_p = fs.createReadStream(this._port_file);
+  //       if (existsSync(this._port_file)) {
+  //         f_p.on("line", (line: string) => {
+  //           _port = line;
+  //         });
+  //         fs.unlinkSync(this._port_file);
+  //         break
+  //       }
+  //     }
+  //     attempts += 1;
+  //     if (attempts == 80.0) {
+  //       let name = this._omc_log_file?.path;
+  //       this._omc_log_file?.close;
+  //       console.error('OMC Server is down (timeout=${fs.readFileSync(name as string)}). Please start it! Log-file says:\n${fs.readFileSync(name as string)}');
+  //       throw new Error("OMC Server is down. Could not open file  ${timeout} ${self._port_file}");
+  //     }
+  //     sleep(timeout / 80.0);
+  //   }
+  //   console.info("OMC Server is up and running at ${_omc_corba_uri} pid=${this._omc_process?.pid}");
 
-    orb.registerStubClass(stub.Server)
-    // connect to the WebSocket server
-    //this._orb.connect("ws://somehostname:8000/");
-    
-    // find the object registered as "MyServer"
-    this._obj_reference = await this._orb.resolve(this._ior);
-    this._omc = stub.Server.narrow(_OMCIDL.OmcCommunication);
-    
-    //Find the root POA
-    this._poa = this._orb.resolve_initial_references("RootPOA");
-    //Convert the IOR into an object reference
-    this._obj_reference = this._orb.string_to_object(this._ior);
-    //Narrow the reference to the OmcCommunication object
-    this._omc = this._obj_reference._narrow(_OMCIDL.OmcCommunication);
-    //Check if we are using the right object
-    if (this._omc == null)
-    console.error("Object reference is not valid");
-    throw new Error;
-  }
+  //   this._orb = new ORB();
+  //   this._orb.registerStubClass(stub.Server);
+
+  //   this._orb.registerStubClass(stub.Server)
+  //   // connect to the WebSocket server
+  //   //this._orb.connect("ws://somehostname:8000/");
+
+  //   // find the object registered as "MyServer"
+  //   this._obj_reference = this._orb.resolve(this._ior);
+  //   this._omc = stub.Server.narrow(_OMCIDL.OmcCommunication);
+
+  //   //Find the root POA
+  //   this._poa = this._orb.resolve_initial_references("RootPOA");
+  //   //Convert the IOR into an object reference
+  //   this._obj_reference = this._orb.string_to_object(this._ior);
+  //   //Narrow the reference to the OmcCommunication object
+  //   this._omc = this._obj_reference._narrow(_OMCIDL.OmcCommunication);
+  //   //Check if we are using the right object
+  //   if (this._omc == null)
+  //     console.error("Object reference is not valid");
+  //   throw new Error;
+  // }
+}
 
 /**
  * @description 目前使用该方式进行通讯
