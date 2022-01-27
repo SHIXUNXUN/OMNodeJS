@@ -1,10 +1,10 @@
 /// <reference types="node" />
+import { ChildProcess } from 'child_process';
+import fs from 'fs';
+import * as zmq from 'zeromq';
 /****************************************************************
  * OMNodeJS is a Node interface to Openmodelica.
  ****************************************************************/
-import { ChildProcess } from 'child_process';
-import fs from 'fs';
-import zmq from 'zeromq';
 /**
  * @description
  * @author 胡旭鹏
@@ -39,13 +39,22 @@ declare class OMCsessionBase extends OMCSessionHelper {
      * @type {Array<string>}
      * @memberof OMCsessionBase
      */
-    omcCommand: Array<string>;
+    omcCommand: string;
     omhome_bin: string | undefined;
     my_env: object;
     constructor(readonly?: boolean);
     __del__(): void;
     _create_omc_log_file(suffix: string): void;
-    _start_omc_process(timeout: number): ChildProcess;
+    /**
+     * @description 基类的开启omc进程方法
+     * @author 胡旭鹏
+     * @date 25/01/2022
+     * @param {number} timeout
+     * @param {number} argv
+     * @return {*}  {ChildProcess}
+     * @memberof OMCsessionBase
+     */
+    _start_omc_process(timeout: number, argv: string[]): ChildProcess;
     /**
      * @description 方法废弃
      * @author 胡旭鹏
@@ -60,7 +69,7 @@ declare class OMCsessionBase extends OMCSessionHelper {
      * @param {Array<object>} omc_path_and_args_list
      * @memberof OMCsessionBase
      */
-    _set_omc_command(omc_path_and_args_list: Array<string>): void;
+    _set_omc_command(omc_path_and_args_list?: Array<string>): void;
     /**
      * @description 向omc发送表达式
      * @author 胡旭鹏
@@ -95,9 +104,7 @@ declare class OMCSessionZMQ extends OMCsessionBase {
     _dockerOpenModelicaPath: string | null;
     _dockerNetwork: string | null;
     _timeout: number;
-    constructor(OMCsessionBase: {
-        constructor: (arg0: boolean) => void;
-    }, readonly?: boolean, timeout?: number, docker?: null, dockerContainer?: null, dockerExtraArgs?: never[], dockerOpenModelicaPath?: string, dockerNetwork?: null, port?: null);
+    constructor(timeout?: number, docker?: null, dockerContainer?: null, dockerExtraArgs?: never[], dockerOpenModelicaPath?: string, dockerNetwork?: null, port?: null);
     /** OMCSessionZMQ的_connect_to_omc方法，需要与OMCsessionBase的加以区分
      * @description
      * @author 胡旭鹏
@@ -107,7 +114,4 @@ declare class OMCSessionZMQ extends OMCsessionBase {
     _connect_to_omc(timeout: number): void;
     sendExpression(command: string, parsed?: boolean): Promise<string | undefined>;
 }
-declare const _default: {
-    OMCSessionZMQ: typeof OMCSessionZMQ;
-};
-export default _default;
+export default OMCSessionZMQ;

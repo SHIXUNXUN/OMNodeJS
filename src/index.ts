@@ -1,6 +1,3 @@
-/****************************************************************
- * OMNodeJS is a Node interface to Openmodelica.
- ****************************************************************/
 import { ChildProcess, spawn } from 'child_process';
 import { ORB } from 'corba.js';
 import fs, { existsSync } from 'fs';
@@ -8,11 +5,15 @@ import uuid from 'node-uuid';
 import os from 'os';
 import path from 'path';
 import process from 'process';
-import readline from 'readline';
-import zmq from 'zeromq';
+import * as zmq from 'zeromq';
 
 import { OMTypedParser } from './OMTypedParser';
 
+//import readline from 'readline';
+// let zmq = require("zeromq");
+/****************************************************************
+ * OMNodeJS is a Node interface to Openmodelica.
+ ****************************************************************/
 /**
  * @description
  * @author 胡旭鹏
@@ -67,7 +68,7 @@ class OMCsessionBase extends OMCSessionHelper {
    * @type {Array<string>}
    * @memberof OMCsessionBase
    */
-  omcCommand: Array<string>;
+  omcCommand: string;
   omhome_bin: string | undefined;
   my_env: object;
   constructor(readonly = true) {
@@ -84,7 +85,7 @@ class OMCsessionBase extends OMCSessionHelper {
     this._random_string = uuid.v4();
     this._omc_log_file = undefined;
     this.extraFlags = undefined;
-    this.omcCommand = [];
+    this.omcCommand = "";
     this.omhome_bin = undefined;
     this.my_env = {};
     try {
@@ -114,34 +115,61 @@ class OMCsessionBase extends OMCSessionHelper {
       this._omc_log_file = fs.createWriteStream(
         path.join(
           this._temp_dir!,
-          `openmodelica.${this._currentUser}.${suffix}.${this._random_string}.log`
-        )
+          `openmodelica.${suffix}.${this._random_string}`
+        ),
+        { flags: "w+" }
       );
     } else {
       this._omc_log_file = fs.createWriteStream(
         path.join(
           this._temp_dir!,
-          `openmodelica.${suffix}.${this._random_string}.log`
-        )
+          `openmodelica.${suffix}.${this._random_string}`
+        ),
+        { flags: "w+" }
       );
     }
   }
-  _start_omc_process(timeout: number): ChildProcess {
+  /**
+   * @description 基类的开启omc进程方法
+   * @author 胡旭鹏
+   * @date 25/01/2022
+   * @param {number} timeout
+   * @param {number} argv
+   * @return {*}  {ChildProcess}
+   * @memberof OMCsessionBase
+   */
+  _start_omc_process(timeout: number, argv: string[]): ChildProcess {
     if (os.platform() === "win32") {
       this.omhome_bin = path.join(this.omhome, "bin").replace("\\", "/");
       const my_env = process.env;
       my_env["PATH"] = this.omhome_bin + path.sep + my_env["PATH"];
-      this._omc_process = spawn(String(this.omcCommand), this._omc_command!, {
+      //这一块需要修改
+      this._omc_process = spawn(this.omcCommand, argv, {
         env: my_env,
-        stdio: [0, this._omc_log_file, this._omc_log_file],
-        shell: true,
+        // stdio: [this._omc_log_file, this._omc_log_file, this._omc_log_file],
+        shell: os.platform() === "win32",
       });
     } else {
-      this._omc_process = spawn(String(this.omcCommand), this._omc_command!, {
-        stdio: [0, this._omc_log_file, this._omc_log_file],
-        shell: true,
+      this._omc_process = spawn(String(this.omcCommand), argv, {
+        // stdio: [this._omc_log_file, this._omc_log_file, this._omc_log_file],
+        shell: os.platform() === "win32",
       });
     }
+    // this._omc_process.stdin?.pipe(this._omc_log_file!);
+    // this._omc_process.stdout?.pipe(this._omc_log_file!);
+    // this._omc_process.stderr?.pipe(this._omc_log_file!);
+    this._omc_process.stdout?.on("data", (data: string) => {
+      console.log(`stdout: ${data}`);
+    });
+
+    this._omc_process.stderr?.on("data", (data: string) => {
+      console.error(`stderr: ${data}`);
+    });
+    this._omc_process.on("close", (code) => {
+      if (code !== 0) {
+        console.log(`_omc_process exited with code ${code}`);
+      }
+    });
     return this._omc_process;
   }
 
@@ -159,11 +187,11 @@ class OMCsessionBase extends OMCSessionHelper {
    * @param {Array<object>} omc_path_and_args_list
    * @memberof OMCsessionBase
    */
-  _set_omc_command(omc_path_and_args_list: Array<string>) {
+  _set_omc_command(omc_path_and_args_list: Array<string> = []) {
     // 此处省略docker部分判断
     if (os.platform() === "win32") {
       this.extraFlags = ["-d=zmqDangerousAcceptConnectionsFromAnywhere"];
-      if (!this._interactivePort) {
+      if (this._interactivePort) {
         throw new Error(
           "docker on Windows requires knowing which port to connect to. For dockerContainer=..., the container needs to have already manually exposed this port when it was started (-p 127.0.0.1:n:n) or you get an error later."
         );
@@ -174,12 +202,12 @@ class OMCsessionBase extends OMCSessionHelper {
     if (false) {
       // docker部分后续加入
     } else {
-      this.omcCommand = [this._get_omc_path()];
+      this.omcCommand = this._get_omc_path();
     }
     if (this._interactivePort) {
       this.extraFlags.push(`--interactivePort=${this._interactivePort}`);
     }
-    omc_path_and_args_list = omc_path_and_args_list.concat(this.extraFlags);
+    omc_path_and_args_list = omc_path_and_args_list!.concat(this.extraFlags);
     if (os.platform() === "win32") {
       this._omc_command = omc_path_and_args_list;
     } else {
@@ -276,13 +304,11 @@ class OMCSession extends OMCsessionBase {
       this._port_file = "openmodelica.objid." + this._random_string;
     }
     this._port_file = String(
-      path
-        .join(
-          docker || dockerContainer ? "/tmp" : this._temp_dir!,
-          this._port_file
-        )
-        .replace("\\", "/")
-    );
+      path.join(
+        docker || dockerContainer ? "/tmp" : this._temp_dir!,
+        this._port_file
+      )
+    ).replace("\\\\", "/");
     this._docker = docker;
     this._dockerContainer = dockerContainer;
     this._dockerExtraArgs = dockerExtraArgs;
@@ -290,8 +316,12 @@ class OMCSession extends OMCsessionBase {
     this._dockerNetwork = dockerNetwork;
     this._timeout = timeout;
     this._create_omc_log_file("port");
-    this._set_omc_command([serverFlag, `+c=${this._random_string}`]);
-    this._start_omc_process(timeout);
+    this._set_omc_command();
+    this._start_omc_process(timeout, [
+      "--interactive=corba",
+      "--locale=C",
+      `-z=${this._random_string}`,
+    ]);
     this._connect_to_omc(timeout);
   }
 
@@ -418,20 +448,18 @@ class OMCSessionZMQ extends OMCsessionBase {
     this._dockerExtraArgs = dockerExtraArgs;
     this._dockerOpenModelicaPath = dockerOpenModelicaPath;
     this._dockerNetwork = dockerNetwork;
-    this._create_omc_log_file("port");
+    //this._create_omc_log_file("port");
     this._timeout = timeout;
     this._port_file = String(
-      path
-        .join(docker ? "/tmp" : this._temp_dir!, this._port_file)
-        .replace("\\", "/")
+      path.join(docker ? "/tmp" : this._temp_dir!, this._port_file)
     );
     this._interactivePort = port;
-    this._set_omc_command([
+    this._set_omc_command();
+    this._start_omc_process(timeout, [
       "--interactive=zmq",
       "--locale=C",
       `-z=${this._random_string}`,
     ]);
-    this._start_omc_process(timeout);
     this._connect_to_omc(timeout);
   }
 
@@ -445,46 +473,36 @@ class OMCSessionZMQ extends OMCsessionBase {
     const _omc_zeromq_uri = "file:///" + this._port_file;
     let attempts = 0;
     let _port: string = "";
-    const _port_file_createReadStream = fs.createReadStream(this._port_file);
     while (true) {
-      if (this._dockerCid) {
-        // docker部分，待后续开发
-      } else {
-        const rl = readline.createInterface({
-          input: _port_file_createReadStream,
-        });
-        if (existsSync(this._port_file)) {
-          rl.on("line", (line: string) => {
-            _port = line;
-          });
-        } else {
-          //python的代码这里感觉有bug
-          rl.close();
-          fs.unlinkSync(this._port_file);
+      attempts += 1;
+      if (existsSync(this._port_file)) {
+        try {
+          _port = fs.readFileSync(this._port_file, "utf8");
           break;
+        } catch (err) {
+          console.error(
+            `_port_file read fail,name: ${this._port_file}, try again, times: ${attempts}`
+          );
         }
       }
-      attempts += 1;
+      sleep(timeout / 80);
       if (attempts == 80) {
         const temname = this._omc_log_file?.path;
         this._omc_log_file?.close();
         console.error(
-          `OMC Server did not start. Please start it! Log-file says:\n${fs.readFileSync(
+          `OMC Server did not start (timeout=${timeout}). Please start it! Log-file says:\n${fs.readFileSync(
             temname as string
           )}`
         );
-        throw new Error(
-          `OMC Server did not start (timeout=${timeout}). Could not open file ${this._port_file}`
-        );
       }
-      sleep(timeout / 80);
     }
     _port = _port.replace("0.0.0.0", this._serverIPAddress!);
     console.info(
       `OMC Server is up and running at ${_omc_zeromq_uri} pid=${this._omc_process?.pid}`
     );
-    this._omc = new zmq.Request({ linger: 0 }); //linger:Dismisses pending messages if closed
-    this._omc.connect(_port);
+    // this._omc = new zmq.Request({ linger: 0 }); //linger:Dismisses pending messages if closed
+    this._omc = new zmq.Request();
+    this._omc?.connect(_port);
     console.info("OMC Client is up and running");
     // this._omc.on("message", (msg: string) => {
     //   console.log(`OMC_Client read: ${msg}`);
@@ -533,5 +551,4 @@ function sleep(ms: number) {
 function execute(expression: string): {} {
   throw new Error("Function not implemented.");
 }
-
-export default { OMCSessionZMQ };
+export default OMCSessionZMQ;
