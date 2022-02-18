@@ -1,12 +1,12 @@
 {
   "name": "omnodejs",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OMNodeJS is a node interface to openmodelica",
   "contributors": [
     "胡旭鹏"
   ],
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc"
   },
@@ -36,6 +36,6 @@
     "zeromq": "^6.0.0-beta.6"
   },
   "files": [
-    "lib/**/*"
+    "dist/**/*"
   ]
 }
