@@ -29,7 +29,11 @@
     "typescript": "^4.5.4"
   },
   "dependencies": {
+<<<<<<< HEAD
     "corba.js": "^0.0.12",
+=======
+    "iconv-lite": "^0.6.3",
+>>>>>>> 9590d7a0b7c9425cd7364c47a1dff2a418232ec8
     "node-uuid": "^1.4.8",
     "peggy": "^1.2.0",
     "tslib": "^2.3.1",
